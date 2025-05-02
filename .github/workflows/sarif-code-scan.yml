@@ -22,7 +22,7 @@ jobs:
 
       - name: ZeroLens Scan
         id: zerolens
-        uses: netriseinc/zerolens-action@v1
+        uses: netriseinc/zerolens-action@v1.0.0
         with:
           token: ${{ secrets.ZEROLENS_TOKEN }}
           binary: build/app.bin
