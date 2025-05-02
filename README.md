@@ -3,7 +3,7 @@
 This repository is a **minimal, self-contained example** demonstrating how to scan a compiled binary with [ZeroLens](https://www.netrise.io/products/zerolens) from a GitHub Actions workflow.
 
 > **Why this repo?**  
-> We frequently get asked _"What does a **good** ZeroLens workflow look like?"_. Rather than pasting snippets in chat, we built a tiny C program, wired up a build step, and added the official `netriseinc/zerolens-action` so you can copy-paste and go.
+> We frequently get asked _"What does a ZeroLens workflow look like?"_. Rather than pasting snippets in chat, we built a tiny C program, wired up a build step, and added the official `netriseinc/zerolens-action` so you can copy-paste and go.
 
 ---
 
@@ -70,11 +70,6 @@ It depends on binary size; most embedded images finish in a few minutes. Using `
 <details>
 <summary>Do I need SARIF?</summary>
 Optional but recommended. Enabling it unlocks GitHub's *Code Scanning* UI and integrates findings into pull-requests.
-</details>
-
-<details>
-<summary>Why do you disable <code>_FORTIFY_SOURCE</code> in the demo Makefile?</summary>
-Purely to keep the example trivial and reproducible. Your production build should keep all the hardening flags you normally use.
 </details>
 
 ---
