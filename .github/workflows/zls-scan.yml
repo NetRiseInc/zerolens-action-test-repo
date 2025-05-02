@@ -1,0 +1,63 @@
+name: ZeroLens Scan
+
+on:
+  push:
+    paths:
+      - "src/main.c"
+      - ".github/workflows/zls-scan.yml"
+  workflow_dispatch:
+
+jobs:
+  zls-scan:
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Build the C binary
+      - name: Build app
+        run: make
+
+      # 2. Run ZeroLens
+      - name: ZeroLens Scan
+        id: zerolens
+        uses: netriseinc/zerolens-action@25e655a81a3cc4c5aabe30bd4ad217119b7e49f1
+        with:
+          token: ${{ secrets.ZEROLENS_TOKEN }}
+          binary: build/app.bin
+          warn_on_cwe: CWE-134
+          max_findings: 10
+          ai_analysis: true
+          sarif_path: out/app.sarif
+          wait: true
+          comment_pr: true
+          github_token: ${{ github.token }}
+
+      # 3. Validate **every** output exists & is non-empty
+      - name: Assert outputs
+        run: |
+          test -n '${{ steps.zerolens.outputs.hashes }}'
+          test -n '${{ steps.zerolens.outputs.findings_json }}'
+          test -n '${{ steps.zerolens.outputs.report }}'
+          test -n '${{ steps.zerolens.outputs.violations }}'
+          # SARIF path is only set if sarif_path was provided
+          test -n '${{ steps.zerolens.outputs.sarif }}'
+          echo "All outputs present ✅"
+
+      # 4. Echo policy decision
+      - run: |
+          printf 'Violations: %s\n' '${{ steps.zerolens.outputs.violations }}'
+          echo "Exit code should already reflect policy engine"
+
+      # 5. Upload artefacts so we can inspect in the UI
+      - name: Upload report & SARIF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zls-scan-artifacts
+          path: |
+            ${{ steps.zerolens.outputs.report }}
+            out/app.sarif

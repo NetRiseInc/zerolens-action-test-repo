@@ -1,0 +1,46 @@
+name: ZeroLens Sarif Code Scan
+
+on:
+  push:
+    branches:
+      - 'EX05*'
+  workflow_dispatch:
+
+jobs:
+  ex05_scan:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build app
+        run: make
+
+      - name: ZeroLens Scan
+        id: zerolens
+        uses: netriseinc/zerolens-action@v1
+        with:
+          token: ${{ secrets.ZEROLENS_TOKEN }}
+          binary: build/app.bin
+          sarif_path: out/app.sarif
+          wait: true
+
+      # Upload SARIF to GitHub Security tab
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: out/app.sarif
+
+      # Upload artefacts for manual inspection
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EX05-report
+          path: |
+            ${{ steps.zerolens.outputs.report }}
+            out/app.sarif 
