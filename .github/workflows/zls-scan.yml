@@ -24,11 +24,12 @@ jobs:
       # 2. Run ZeroLens
       - name: ZeroLens Scan
         id: zerolens
-        uses: netriseinc/zerolens-action@25e655a81a3cc4c5aabe30bd4ad217119b7e49f1
+        uses: netriseinc/zerolens-action@v1
         with:
           token: ${{ secrets.ZEROLENS_TOKEN }}
           binary: build/app.bin
           warn_on_cwe: CWE-134
+          fail_on_cwe: CWE-121,CWE-122
           max_findings: 10
           ai_analysis: true
           sarif_path: out/app.sarif
